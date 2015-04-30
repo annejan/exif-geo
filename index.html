@@ -39,11 +39,8 @@
 
         function uploadComplete(evt) {
             /* This event is raised when the server send back a response */
-            var exifGPS = evt.target.responseText;
-            //document.getElementById("data").innerHTML += exifGPS + "<br />";
-            exif = JSON.parse(exifGPS);
-            console.log();
-            exif = new google.maps.LatLng(exif['lat'], exif['lon'])
+            exif = JSON.parse(evt.target.responseText);
+            exif = new google.maps.LatLng(exif['lat'], exif['lon']);
             getLocation();
         }
 
@@ -64,48 +61,41 @@
         }
 
         function showPosition(position) {
-            //document.getElementById("data").innerHTML += "Latitude: " + position.coords.latitude + "<br />Longitude: " + position.coords.longitude;
             lapi = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             drawMap();
         }
 
         function drawMap() {
             var div = document.getElementById("map");
-
             div.style.display = 'block';
 
             var mapProp = {
                 center: new google.maps.LatLng(52.364415, 4.858947),
-                zoom: 17,
+                zoom: 13,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
-            var map = new google.maps.Map(div,mapProp);
+            
+	    var map = new google.maps.Map(div,mapProp);
 
-            var markerExif=new google.maps.Marker({
-                position: exif
-            });
+	    var markerExif = createMarker({
+    		position: exif,
+    		map: map
+  	    }, "<h1>EXIF</h1><p>This location came from your camera.</p>"); 
 
-            markerExif.setMap(map);
+	    var markerExif = createMarker({
+    		position: lapi,
+    		map: map
+  	    }, "<h1>Geolocation</h1><p>This location came from your browser..</p>"); 
 
-            var infowindowExif = new google.maps.InfoWindow({
-                content:"EXIF"
-            });
+	    var distance = calcDistance(exif, lapi);
 
-            infowindowExif.open(map,markerExif);
+	    if (distance > 1000) {
+		distance = (distance / 1000) + " km";
+	    } else {
+		distance += " meters";
+	    }
 
-            var markerLapi=new google.maps.Marker({
-                position: lapi
-            });
-
-            markerLapi.setMap(map);
-
-            var infowindowLapi = new google.maps.InfoWindow({
-                content:"Location API"
-            });
-
-            infowindowLapi.open(map,markerLapi);
-
-            document.getElementById("data").innerHTML = "Distance: " + calcDistance(exif, lapi);
+            document.getElementById("data").innerHTML = "Distance: " + distance;
         }
 
         function calcDistance(p1, p2){
@@ -113,6 +103,17 @@
             console.log(dist);
             return dist;
         }
+
+	function createMarker(options, html) {
+    		var marker = new google.maps.Marker(options);
+    		if (html) {
+      			google.maps.event.addListener(marker, "click", function () {
+        			infoWindow.setContent(html);
+        			infoWindow.open(options.map, this);
+      			});
+    		}
+    		return marker;
+  	}
     </script>
 </head>
 <body>

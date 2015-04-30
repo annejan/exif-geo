@@ -35,7 +35,7 @@ if (isset($_FILES['myFile'])) {
 	exit;
     }
 
-    echo json_encode(array('lat '=> $lat, 'lon' => $lon));
+    echo json_encode(array('lat'=> $lat, 'lon' => $lon));
 } else {
     echo 'false';
 }
