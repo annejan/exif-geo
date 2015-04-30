@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EXIF vs Geolocation</title>
+    <script type="text/javascript">
+        var exif;
+        var lapi;
+
+        function getPicture() {
+            document.getElementById('fileToUpload').click();
+        }
+
+        function fileSelected() {
+            var fd = new FormData();
+            var count = document.getElementById('fileToUpload').files.length;
+            for (var index = 0; index < count; index ++)
+            {
+                var file = document.getElementById('fileToUpload').files[index];
+                fd.append('myFile', file);
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.upload.addEventListener("progress", uploadProgress, false);
+            xhr.addEventListener("load", uploadComplete, false);
+            xhr.addEventListener("error", uploadFailed, false);
+            xhr.addEventListener("abort", uploadCanceled, false);
+            xhr.open("POST", "exif.php");
+            xhr.send(fd);
+        }
+
+        function uploadProgress(evt) {
+            if (evt.lengthComputable) {
+                var percentComplete = Math.round(evt.loaded * 100 / evt.total);
+                document.getElementById('progress').innerHTML = percentComplete.toString() + '%';
+            }
+            else {
+                document.getElementById('progress').innerHTML = 'unable to compute';
+            }
+        }
+
+        function uploadComplete(evt) {
+            /* This event is raised when the server send back a response */
+            var exifGPS = evt.target.responseText;
+            //document.getElementById("data").innerHTML += exifGPS + "<br />";
+            exif = JSON.parse(exifGPS);
+            console.log();
+            exif = new google.maps.LatLng(exif['lat'], exif['lon'])
+            getLocation();
+        }
+
+        function uploadFailed(evt) {
+            document.getElementById("data").innerHTML += "There was an error attempting to upload the file.<br />";
+        }
+
+        function uploadCanceled(evt) {
+            document.getElementById("data").innerHTML += "The upload has been canceled by the user or the browser dropped the connection.<br />";
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition);
+            } else {
+                document.getElementById("data").innerHTML += "Geolocation is not supported by this browser.<br />";
+            }
+        }
+
+        function showPosition(position) {
+            //document.getElementById("data").innerHTML += "Latitude: " + position.coords.latitude + "<br />Longitude: " + position.coords.longitude;
+            lapi = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+            drawMap();
+        }
+
+        function drawMap() {
+            var div = document.getElementById("map");
+
+            div.style.display = 'block';
+
+            var mapProp = {
+                center: new google.maps.LatLng(52.364415, 4.858947),
+                zoom: 17,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            };
+            var map = new google.maps.Map(div,mapProp);
+
+            var markerExif=new google.maps.Marker({
+                position: exif
+            });
+
+            markerExif.setMap(map);
+
+            var infowindowExif = new google.maps.InfoWindow({
+                content:"EXIF"
+            });
+
+            infowindowExif.open(map,markerExif);
+
+            var markerLapi=new google.maps.Marker({
+                position: lapi
+            });
+
+            markerLapi.setMap(map);
+
+            var infowindowLapi = new google.maps.InfoWindow({
+                content:"Location API"
+            });
+
+            infowindowLapi.open(map,markerLapi);
+
+            document.getElementById("data").innerHTML = "Distance: " + calcDistance(exif, lapi);
+        }
+
+        function calcDistance(p1, p2){
+            var dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
+            console.log(dist);
+            return dist;
+        }
+    </script>
+</head>
+<body>
+<form id="form1" enctype="multipart/form-data" method="post" action="exif.php">
+    <div id="map" style="width: 100%; height: 100%; display: none; position: absolute; top: 0; left: 0;"></div>
+    <div id="disclaimer" style="position: absolute; top: 0; left: 0; width: 100%; background-color: white; opacity: 0.7;">The photo's are only temporarily saved to extract the GPS data from EXIF.<br />The two coordinates are saved for statistical purposes though and will be shared with third parties.</div>
+    <img id="camera" src="camera.svg" alt="Take Picture" onclick="getPicture();" style="width: auto; height: 200px;" />
+    <div id="progress"></div>
+    <div id="data"></div>
+    <input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" style="display: none;" />
+</form>
+<script src="http://maps.googleapis.com/maps/api/js?sensor=false&v=3&libraries=geometry"></script>
+</body>
+</html>
