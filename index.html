@@ -137,12 +137,14 @@
 <body style="font-family: Roboto,Arial,sans-serif">
 <form id="form1" enctype="multipart/form-data" method="post" action="exif.php">
     <div id="map" style="width: 100%; height: 100%; display: none; position: absolute; top: 0; left: 0;"></div>
-    <div id="disclaimer" style="color: #660000; position: absolute; top: 0; left: 0;">
+    <div id="disclaimer" style="color: #660000; position: absolute; top: 0; left: 0; height: 100%;">
 	<h1>EXIF Geolocation</h1>
 	<h2>Take a picture and share your location, this app will show the difference between GPS info in the two.</h2>
-	<div style="height: 400px;"></div>
-	The photo's are only temporarily saved to extract the GPS data from EXIF.<br />
-	The two coordinates are saved for statistical purposes though and will be shared with third parties.
+	<div style="position: absolute; bottom: 0;">
+	    The photo's are only temporarily saved to extract the GPS data from the EXIF metadata.<br />
+	    <!-- The two coordinates are saved for statistical purposes though and will be shared with third parties.-->
+	     &copy; 2015 <a href="https://annejan.com/">Anne Jan Brouwer</a> - Get the source from <a href="https://github.com/annejan/exif-geo">GitHub</a>.
+	</div>
     </div>
     <div id="overlay" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 0; background-color: #24cafe;"></div>
     <img id="camera" src="camera.svg" alt="Take Picture" onclick="getPicture();" style="position: absolute; width: 400px; height: 400px; top: 50%; left: 50%; margin-left: -200px; margin-top: -200px; opaxity: 0.75;" />
