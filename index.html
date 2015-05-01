@@ -6,6 +6,8 @@
         var exif;
         var lapi;
 
+	var info;
+
         function getPicture() {
             document.getElementById('fileToUpload').click();
         }
@@ -45,9 +47,8 @@
 	    document.getElementById('progress').innerHTML = 'Fetching Geolocation';
             /* This event is raised when the server send back a response */
             var exifJSON = JSON.parse(evt.target.responseText);
-	    if (exifJSON['lat'] == 0 || exifJSON['lon'] == 0) {
-		console.log(exifJSON);
-	    }
+	    console.log(exifJSON);
+ 	    info = exifJSON['SectionsFound'];
             exif = new google.maps.LatLng(exifJSON['lat'], exifJSON['lon']);
             getLocation();
         }
@@ -131,13 +132,12 @@
 	
             	document.getElementById("data").innerHTML = "Distance: " + distance;
 	    } else {
-            	document.getElementById("data").innerHTML = "Something went wrong :(";
+            	document.getElementById("data").innerHTML = "Something went wrong :(<br />" + info;
 	   }
         }
 
         function calcDistance(p1, p2){
             var dist = google.maps.geometry.spherical.computeDistanceBetween(p1, p2);
-            console.log(dist);
             return dist;
         }
     </script>
