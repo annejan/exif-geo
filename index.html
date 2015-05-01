@@ -44,8 +44,11 @@
 	    document.getElementById('disclaimer').style.display = 'none';
 	    document.getElementById('progress').innerHTML = 'Fetching Geolocation';
             /* This event is raised when the server send back a response */
-            exif = JSON.parse(evt.target.responseText);
-            exif = new google.maps.LatLng(exif['lat'], exif['lon']);
+            var exifJSON = JSON.parse(evt.target.responseText);
+	    if (exifJSON['lat'] == 0 || exifJSON['lon'] == 0) {
+		console.log(exifJSON);
+	    }
+            exif = new google.maps.LatLng(exifJSON['lat'], exifJSON['lon']);
             getLocation();
         }
 
@@ -118,13 +121,18 @@
 
 	    var distance = calcDistance(exif, lapi);
 
-	    if (distance > 1000) {
-		distance = (distance / 1000).toFixed(2) + " km";
+	    if (!isNaN(distance)) {
+		
+	   	if (distance > 1000) {
+			distance = (distance / 1000).toFixed(2) + " km";
+	   	} else {
+			distance += " meters";
+	    	}
+	
+            	document.getElementById("data").innerHTML = "Distance: " + distance;
 	    } else {
-		distance += " meters";
-	    }
-
-            document.getElementById("data").innerHTML = "Distance: " + distance;
+            	document.getElementById("data").innerHTML = "Something went wrong :(";
+	   }
         }
 
         function calcDistance(p1, p2){
