@@ -44,13 +44,20 @@
         function uploadComplete(evt) {
 	    document.getElementById('camera').style.display = 'none';
 	    document.getElementById('disclaimer').style.display = 'none';
-	    document.getElementById('progress').innerHTML = 'Fetching Geolocation';
             /* This event is raised when the server send back a response */
             var exifJSON = JSON.parse(evt.target.responseText);
 	    console.log(exifJSON);
- 	    info = exifJSON['SectionsFound'];
-            exif = new google.maps.LatLng(exifJSON['lat'], exifJSON['lon']);
-            getLocation();
+	    if (exifJSON['lat'] == undefined) {
+	    	document.getElementById('progress').innerHTML = '';
+		document.getElementById("data").style.textAlign = "left";
+            	document.getElementById("data").innerHTML = '<h1>No useable GPS data found in EXIF</h1>';
+		document.getElementById("data").appendChild(renderjson.set_icons('+', '-').set_show_to_level(2)(exifJSON));
+	    } else {
+	    	document.getElementById('progress').innerHTML = 'Fetching Geolocation';
+ 	    	info = exifJSON['SectionsFound'];
+            	exif = new google.maps.LatLng(exifJSON['lat'], exifJSON['lon']);
+            	getLocation();
+	    }
         }
 
         function uploadFailed(evt) {
@@ -161,5 +168,6 @@
     <input type="file" name="fileToUpload" id="fileToUpload" onchange="fileSelected();" accept="image/*" capture="camera" style="display: none;" />
 </form>
 <script src="http://maps.googleapis.com/maps/api/js?sensor=false&v=3&libraries=geometry"></script>
+<script type="text/javascript" src="renderjson.js"></script>
 </body>
 </html>
