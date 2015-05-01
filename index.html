@@ -41,8 +41,8 @@
 
         function uploadComplete(evt) {
 	    document.getElementById('camera').style.display = 'none';
-	    document.getElementById('progress').style.display = 'none';
 	    document.getElementById('disclaimer').style.display = 'none';
+	    document.getElementById('progress').innerHTML = 'Fetching Geolocation';
             /* This event is raised when the server send back a response */
             exif = JSON.parse(evt.target.responseText);
             exif = new google.maps.LatLng(exif['lat'], exif['lon']);
@@ -66,6 +66,7 @@
         }
 
         function showPosition(position) {
+	    document.getElementById('progress').innerHTML = 'Generating Map';
             lapi = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
             drawMap();
         }
@@ -84,6 +85,7 @@
 	    var infoWindow = new google.maps.InfoWindow();
 
 	    document.getElementById('overlay').style.display = 'none';
+	    document.getElementById('progress').style.display = 'none';
 
 	    function createMarker(options, html) {
     		var marker = new google.maps.Marker(options);
