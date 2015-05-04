@@ -2,6 +2,7 @@
 Show distance between image EXIF GPS data and Location API.
 
 TODO
+* Use client side parser 
 * Store results for statistical analysis
 * Auto positioning and scaling of map
 
